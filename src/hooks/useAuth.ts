@@ -1,52 +1,41 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { setupInterceptors } from '../api/interceptors';
 import { authApi } from '../api/client';
-import { safeRequest } from '../utils/safeRequest';
 
 export interface AuthHookOptions {
   endpoint?: string;
-  method?: 'get' | 'post' | 'put' | 'patch' | 'delete';
+  enableRefresh?: boolean;
+  refreshEndpoint?: string;
 }
 
 export const useAuth = (options?: AuthHookOptions) => {
-  const { 
-    user, 
-    isAuthenticated, 
-    isInitialized, 
-    setSession, 
-    setInitialized, 
-    clearSession 
-  } = useAuthStore();
-
-  const endpoint = options?.endpoint || '/auth/me';
-  const method = options?.method || 'get';
+  const { user, isAuthenticated, isInitialized, clearSession } = useAuthStore();
+  
+  const endpoint = options?.endpoint || '/users/me';
+  const enableRefresh = options?.enableRefresh ?? false;
+  const refreshEndpoint = options?.refreshEndpoint || '/users/refresh';
 
   useEffect(() => {
-    const checkSession = async () => {
-      if (isInitialized) return;
+    setupInterceptors({
+      onLogout: clearSession,
+      enableRefresh,
+      refreshEndpoint
+    });
 
-      const requestPromise = method === 'get' 
-        ? authApi.get(endpoint) 
-        : authApi[method](endpoint);
-
-      // 4. Use your safeRequest wrapper for clean error handling
-      const { data, error } = await safeRequest(requestPromise);
-
-      if (error || !data?.user) {
-         setInitialized(true);
-        return;
+    const initAuth = async () => {
+      try {
+        const response = await authApi.get(endpoint);
+        useAuthStore.getState().setSession(response.data.user);
+      } catch (error) {
+        useAuthStore.getState().clearSession();
       }
-
-      setSession(data.user);
     };
 
-    checkSession();
-  }, [isInitialized, setSession, setInitialized, endpoint, method]);
+    if (!isInitialized) {
+      initAuth();
+    }
+  }, [isInitialized, endpoint, enableRefresh, refreshEndpoint, clearSession]);
 
-  return { 
-    user, 
-    isAuthenticated, 
-    isInitialized, 
-    clearSession 
-  };
+  return { user, isAuthenticated, isInitialized, clearSession };
 };
