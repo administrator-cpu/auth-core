@@ -1,6 +1,6 @@
 {
   "name": "@thediv/auth-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Headless authentication engine",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -9,11 +9,17 @@
     "build": "tsup",
     "dev": "tsup --watch"
   },
-  
-"files": [
+  "files": [
     "dist"
   ],
-  "keywords": ["auth", "authentication", "react", "headless-auth", "zustand", "axios"],
+  "keywords": [
+    "auth",
+    "authentication",
+    "react",
+    "headless-auth",
+    "zustand",
+    "axios"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/your-username/auth-core.git"
