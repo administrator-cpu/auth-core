@@ -1,6 +1,6 @@
 {
   "name": "@thediv/auth-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Headless authentication engine",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
