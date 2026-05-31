@@ -1,8 +1,8 @@
-# @div/auth-core
+# @thediv/auth-core
 
 A headless, enterprise-grade authentication engine for React and Next.js applications.
 
-`@div/auth-core` completely decouples authentication logic from the UI. It provides highly configurable React hooks, robust state management via Zustand, automatic token-refresh interceptors for HttpOnly cookies, and strict runtime validation using Zod.
+`@thediv/auth-core` completely decouples authentication logic from the UI. It provides highly configurable React hooks, robust state management via Zustand, automatic token-refresh interceptors for HttpOnly cookies, and strict runtime validation using Zod.
 
 ---
 
@@ -19,7 +19,7 @@ A headless, enterprise-grade authentication engine for React and Next.js applica
 ## Installation
 
 ```bash
-npm install @div/auth-core
+npm install @thediv/auth-core
 ```
 
 Ensure you have the following peer dependencies installed:
@@ -46,7 +46,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 Access the current user's session from anywhere in your application using `useAuth` or `useAuthStore`.
 
 ```tsx
-import { useAuth } from '@div/auth-core';
+import { useAuth } from '@thediv/auth-core';
 
 export const ProtectedDashboard = () => {
   const { user, isAuthenticated, isInitialized, clearSession } = useAuth();
@@ -76,7 +76,7 @@ All hooks return standard states: `isLoading`, `error`, and `resetError()`, alon
 Handles standard user sign-in and updates the global session upon receiving the HttpOnly cookie.
 
 ```ts
-import { useLogin } from '@div/auth-core';
+import { useLogin } from '@thediv/auth-core';
 
 // Default: POST /auth/login
 const { login, isLoading, error, resetError } = useLogin();
@@ -102,7 +102,7 @@ const onSubmit = async (data) => {
 Handles user registration. On success, the UI can route the user to the OTP verification screen.
 
 ```ts
-import { useRegister } from '@div/auth-core';
+import { useRegister } from '@thediv/auth-core';
 
 // Default: POST /auth/register
 const { register, isLoading, error, resetError } = useRegister();
@@ -122,7 +122,7 @@ const onSubmit = async (data) => {
 Manages both verification and resending of One-Time Passwords with independent endpoint configuration.
 
 ```ts
-import { useOTP } from '@div/auth-core';
+import { useOTP } from '@thediv/auth-core';
 
 const { verifyOTP, resendOTP, isLoading, error, resetError } = useOTP({
   verifyEndpoint: '/auth/verify-otp',
@@ -145,7 +145,7 @@ await resendOTP('user@example.com');
 Handles the two-step forgotten password flow: requesting a reset code and submitting a new password.
 
 ```ts
-import { usePassword } from '@div/auth-core';
+import { usePassword } from '@thediv/auth-core';
 
 const { requestReset, resetPassword, isLoading, error, resetError } = usePassword();
 
@@ -170,7 +170,7 @@ await resetPassword({
 Checks for an existing session on mount by calling the `/auth/me` endpoint. Populates the global store if a valid session is found. Designed to be used once at the application root.
 
 ```ts
-import { useAuth } from '@div/auth-core';
+import { useAuth } from '@thediv/auth-core';
 
 // Default: GET /auth/me
 const { user, isAuthenticated, isInitialized, clearSession } = useAuth();
@@ -197,7 +197,7 @@ import {
   otpSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-} from '@div/auth-core';
+} from '@thediv/auth-core';
 ```
 
 | Schema | Fields |
@@ -224,7 +224,7 @@ import type {
   User,
   AuthResponse,
   ApiErrorResponse,
-} from '@div/auth-core';
+} from '@thediv/auth-core';
 ```
 
 ### `User`
