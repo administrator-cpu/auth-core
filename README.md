@@ -46,10 +46,18 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 Access the current user's session from anywhere in your application using `useAuth` or `useAuthStore`.
 
 ```tsx
+```ts
 import { useAuth } from '@thediv/auth-core';
 
-export const ProtectedDashboard = () => {
-  const { user, isAuthenticated, isInitialized, clearSession } = useAuth();
+// Default: GET /auth/me (Strict Bouncer Mode - No Refresh)
+const { user, isAuthenticated, isInitialized, clearSession } = useAuth();
+
+// With Silent Refresh Enabled (Dynamic backend configuration)
+const { user } = useAuth({
+  endpoint: '/users/me',
+  enableRefresh: true,
+  refreshEndpoint: '/users/refresh'
+});
 
   if (!isInitialized) return <LoadingSkeleton />;
   if (!isAuthenticated) return <Redirect to="/login" />;
@@ -62,6 +70,28 @@ export const ProtectedDashboard = () => {
   );
 };
 ```
+
+Checks for an existing session on mount by calling the `/auth/me` endpoint (or your custom endpoint). Populates the global store if a valid session is found. Designed to be used once at the application root.
+
+### 2. Update the `Token Refresh & Interceptors` Section
+Replace your current Token Refresh section with this detailed breakdown of the dual-mode interceptor you just built:
+
+```markdown
+## Token Refresh & Interceptors
+
+The engine includes a dynamic Axios response interceptor that acts as a global security perimeter. Its behavior is fully configurable via the `useAuth` hook:
+
+**1. Strict Bouncer Mode (Default)**
+If `enableRefresh` is `false`, the engine acts as a strict gatekeeper. Any `401 Unauthorized` response immediately destroys the global session state and logs the user out. Ideal for architectures relying on long-lived HttpOnly cookies without a separate refresh flow.
+
+**2. Silent Refresh Mode**
+If `enableRefresh` is `true`, the interceptor handles expired access tokens seamlessly:
+* On a `401` response, the interceptor pauses the original request and fires a `POST` to your configured `refreshEndpoint`.
+* If the refresh succeeds, the original request is retried automatically.
+* If the refresh fails (e.g. the refresh token is also expired), `clearSession()` is called, logging the user out.
+* Concurrent requests that fail during a refresh are queued and retried together once the refresh completes, preventing redundant refresh calls.
+
+> **Note:** The interceptor intelligently bypasses `401` errors that occur on `/login` or `/register` routes, allowing your UI to handle and display standard "Invalid Credentials" errors.
 
 ---
 
