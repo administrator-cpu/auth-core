@@ -1,0 +1,37 @@
+name: Publish to npm
+
+# This tells GitHub to only run this script when code is pushed to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Grab the latest code from your repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Set up the Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      # 3. Install dependencies cleanly (using ci instead of install is faster and strictly uses package-lock.json)
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Build the /dist folder
+      - name: Build Package
+        run: npm run build
+
+      # 5. Publish to npm using the secret token
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
