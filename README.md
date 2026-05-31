@@ -147,21 +147,36 @@ Handles the two-step forgotten password flow: requesting a reset code and submit
 ```ts
 import { usePassword } from '@thediv/auth-core';
 
-const { requestReset, resetPassword, isLoading, error, resetError } = usePassword();
+// Default multi-step flow
+const { 
+  requestReset, 
+  verifyResetOTP, 
+  submitNewPassword, 
+  isLoading, 
+  error 
+} = usePassword({
+  // Example of overriding defaults for a specific backend architecture
+  verifyEndpoint: '/users/verify-reset-otp',
+  resetEndpoint: '/users/reset-password',
+  resetMethod: 'patch'
+});
 
 // Step 1: Request the reset OTP/link (Default: POST /auth/forgot-password)
 await requestReset({ email: 'user@example.com' });
 
-// Step 2: Submit new credentials (Default: POST /auth/reset-password)
-await resetPassword({
+// Step 2: Verify the OTP independently (Default: POST /auth/verify-reset-otp)
+await verifyResetOTP({ email: 'user@example.com', otp: '123456' });
+
+// Step 3: Submit new credentials (Default: POST /auth/reset-password)
+await submitNewPassword({
   email: 'user@example.com',
-  otp: '123456',
-  password: 'NewStrongPassword1!',
-  confirmPassword: 'NewStrongPassword1!',
+  password: 'NewStrongPassword1!'
 });
 ```
 
-> **Note:** `confirmPassword` is stripped from the payload before the request is sent. Only `email`, `otp`, and `password` are forwarded to the backend.
+> **Developer Notes:** > * **Payload Optimization:** `confirmPassword` is used strictly for frontend validation and is stripped before the network request. Only the required fields (`email`, `password`, and `otp` if applicable) are forwarded to the backend.
+
+> * **Backwards Compatibility:** If your backend handles OTP verification and password updates in a single endpoint, the engine still exports the legacy `resetPassword({ email, otp, password })` function to support 2-step flows.
 
 ---
 
