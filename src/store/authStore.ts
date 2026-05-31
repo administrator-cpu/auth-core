@@ -24,4 +24,4 @@ export const useAuthStore = create<AuthState>((set) => ({
   setInitialized: (status: boolean) => set({ isInitialized: status }),
 }));
 
-setupInterceptors(useAuthStore.getState().clearSession);
+setupInterceptors({ onLogout: useAuthStore.getState().clearSession });
